@@ -1,14 +1,18 @@
 :root {
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
-  line-height: 1.5;
+  --color-bg: #fdfbf7;
+  --color-text: #3d3d3d;
+  --color-primary: #b72e2e;
+  --color-accent: #d4a017; /* Muted gold */
+  --color-border: #e5e0d8;
+  --color-paper: #ffffff;
+  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.05);
+
+  font-family: "Noto Serif SC", "SimSun", "Songti SC", serif;
+  line-height: 1.7;
   font-weight: 400;
-  color: #1f2933;
-  background-color: #f2efe9;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -19,6 +23,11 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background-image:
+    linear-gradient(var(--color-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-border) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center top;
 }
 
 #app {
@@ -28,180 +37,468 @@ body {
   justify-content: center;
   padding: 2rem;
   box-sizing: border-box;
+  background: radial-gradient(
+    circle,
+    rgba(253, 251, 247, 0.9) 0%,
+    rgba(253, 251, 247, 0.95) 100%
+  );
 }
 
 .app-shell {
-  max-width: 640px;
+  max-width: 720px; /* Slightly wider for new layout */
   width: 100%;
-  padding: 2.5rem 2rem 2.25rem;
-  border-radius: 16px;
-  background: radial-gradient(
-    circle at top,
-    #fff7e5 0,
-    #f7f2e9 45%,
-    #ece4d6 100%
-  );
-  box-shadow:
-    0 18px 45px rgba(15, 23, 42, 0.18),
-    0 0 0 1px rgba(15, 23, 42, 0.04);
+  padding: 3rem 2.5rem;
+  background-color: var(--color-paper);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-soft);
   text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Decorative top/bottom borders */
+.app-shell::before,
+.app-shell::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--color-primary),
+    var(--color-primary) 10px,
+    transparent 10px,
+    transparent 20px
+  );
+  opacity: 0.15;
+}
+
+.app-shell::before {
+  top: 0;
+}
+
+.app-shell::after {
+  bottom: 0;
 }
 
 .app-header h1 {
-  margin: 0 0 0.75rem;
-  font-size: 2.4rem;
-  letter-spacing: 0.08em;
+  margin: 0 0 0.2rem;
+  font-size: 3rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--color-text);
+}
+
+.header-jp {
+  font-size: 1.2rem;
+  color: var(--color-primary);
+  letter-spacing: 0.1em;
+  margin-bottom: 1.2rem;
+  font-weight: 700;
 }
 
 .subtitle {
-  margin: 0;
-  font-size: 1rem;
-  color: #4b5563;
+  margin: 0.5rem 0 0;
+  font-size: 1.1rem;
+  color: #555;
+  letter-spacing: 0.1em;
+}
+
+.subtitle-jp {
+  margin: 0.2rem 0 0;
+  font-size: 0.9rem;
+  color: #888;
+  font-family:
+    "Noto Serif JP", serif; /* Fallback will work if Noto Serif SC covers kanji */
+  letter-spacing: 0.05em;
 }
 
 .app-actions {
-  margin-top: 1.75rem;
+  margin-top: 2.5rem;
 }
 
 .primary-button {
-  padding: 0.6rem 1.6rem;
-  border-radius: 999px;
-  border: none;
-  font-size: 0.95rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  background: linear-gradient(135deg, #f97316, #e11d48);
-  color: #fdf7ee;
+  padding: 0.8rem 3rem;
+  border: 1px solid var(--color-primary);
+  background-color: var(--color-primary);
+  color: white;
+  font-family: inherit;
+  font-size: 1.1rem;
+  letter-spacing: 0.2em;
   cursor: pointer;
-  box-shadow: 0 10px 25px rgba(148, 27, 37, 0.35);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.primary-button:hover {
+  background-color: white;
+  color: var(--color-primary);
 }
 
 .primary-button:active {
   transform: translateY(1px);
-  box-shadow: 0 6px 18px rgba(148, 27, 37, 0.4);
 }
 
 .fortune-card {
-  margin-top: 2rem;
-  padding: 1.5rem 1.25rem 1.25rem;
-  border-radius: 12px;
-  background-color: rgba(255, 255, 255, 0.86);
-  box-shadow:
-    0 10px 26px rgba(15, 23, 42, 0.15),
-    0 0 0 1px rgba(15, 23, 42, 0.03);
-  text-align: left;
+  margin-top: 3rem;
+  padding: 2.5rem;
+  border: 1px double var(--color-border);
+  background-color: #fff;
+  text-align: center; /* Centered by default for poem */
+  position: relative;
+}
+
+/* Corner decorations for card */
+.fortune-card::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  border: 1px solid var(--color-border);
+  pointer-events: none;
 }
 
 .placeholder {
   margin: 0;
-  font-size: 0.95rem;
-  color: #6b7280;
+  font-size: 1rem;
+  color: #888;
+  text-align: center;
+  padding: 2rem 0;
+  font-style: italic;
 }
 
+/* Header with ID and Grade */
+.fortune-header {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.fortune-id-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+}
+
+.fortune-id {
+  font-size: 1.4rem;
+  color: #555;
+  letter-spacing: 0.2em;
+  font-weight: 700;
+}
+
+.fortune-grade {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+  padding: 0.1rem 0.8rem;
+  line-height: 1.2;
+  background-color: #fff;
+  box-shadow: 2px 2px 0 rgba(183, 46, 46, 0.1);
+  letter-spacing: 0.1em;
+}
+
+/* Images Section */
 .fortune-images {
   display: flex;
   justify-content: center;
-  gap: 1.25rem;
-  margin: 0.75rem 0 0.5rem;
+  gap: 3rem;
+  margin: 1rem 0 2.5rem;
 }
 
 .fortune-image {
   margin: 0;
   text-align: center;
+  position: relative;
 }
 
 .fortune-image img {
   display: block;
-  width: 120px;
+  width: 160px; /* Increased size */
   height: auto;
-  border-radius: 8px;
-  box-shadow:
-    0 10px 18px rgba(15, 23, 42, 0.2),
-    0 0 0 1px rgba(15, 23, 42, 0.06);
-  object-fit: cover;
+  border: 6px solid white;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  filter: sepia(0.1);
+  transition:
+    transform 0.3s,
+    filter 0.3s;
 }
 
-.fortune-image figcaption {
-  margin-top: 0.25rem;
-  font-size: 0.8rem;
-  color: #6b7280;
+.fortune-image img:hover {
+  transform: scale(1.02);
+  filter: sepia(0);
 }
 
-.fortune-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 0.75rem;
+.fortune-image::after {
+  content: "⚲";
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  color: white;
+  font-size: 1.2rem;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  opacity: 0.8;
 }
 
-.fortune-id {
-  font-size: 0.95rem;
-  color: #4b5563;
+/* Poem Section (Centered) */
+.fortune-poem-container {
+  margin: 2rem 0;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  background-color: rgba(253, 251, 247, 0.5);
 }
 
-.fortune-grade {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #b91c1c;
+.fortune-poem-title {
+  display: none; /* Hide '签诗' text, let the poem speak for itself */
 }
 
-.fortune-body {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.25rem;
-  margin-top: 0.75rem;
-}
-
-.fortune-title {
-  margin: 0 0 0.25rem;
-  font-size: 0.95rem;
-  color: #374151;
-}
-
-.fortune-list {
+.fortune-poem-list {
   margin: 0;
-  padding-left: 1.1rem;
-  font-size: 0.92rem;
-  color: #111827;
+  padding: 0;
+  list-style: none;
+  font-size: 1.6rem; /* Large font for poem */
+  font-weight: 700;
+  color: #222;
+  line-height: 2;
+  font-family: "Noto Serif SC", serif;
+  letter-spacing: 0.1em;
 }
 
-.fortune-list li + li {
-  margin-top: 0.1rem;
+.fortune-poem-list li {
+  margin-bottom: 0.5rem;
 }
 
+/* Interpretation Section */
+.fortune-interpretation {
+  text-align: left;
+  margin: 2.5rem 0;
+  padding: 0 1rem;
+}
+
+.fortune-subtitle {
+  font-size: 1.1rem;
+  color: var(--color-primary);
+  margin: 0 0 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  display: inline-block;
+  border-bottom: 2px solid rgba(183, 46, 46, 0.2);
+  padding-bottom: 0.2rem;
+}
+
+.fortune-text {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: #444;
+  text-align: justify;
+}
+
+/* Detailed Words Section */
 .fortune-words {
-  margin-top: 1.25rem;
+  text-align: left;
+  margin-top: 2.5rem;
+  padding: 0 1rem;
 }
 
 .words-list {
-  margin: 0.25rem 0 0;
-  padding-left: 0;
+  margin: 1rem 0 0;
+  padding: 0;
   list-style: none;
-  font-size: 0.9rem;
+  font-size: 1rem;
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(280px, 1fr)
+  ); /* Wider columns */
+  gap: 1rem 2rem;
 }
 
 .words-list li {
   display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
+  align-items: flex-start; /* Align top for multi-line text */
+  padding: 0.5rem 0.75rem;
+  background-color: #fcfcfc;
+  border-left: 3px solid var(--color-border); /* Graphic guide */
+  transition: border-color 0.3s;
+}
+
+.words-list li:hover {
+  border-left-color: var(--color-accent);
+  background-color: #fdfdfd;
 }
 
 .word-key {
-  min-width: 6rem;
-  color: #4b5563;
+  min-width: 3.5rem;
+  color: var(--color-primary); /* Use primary color for keys */
+  font-weight: 700;
+  margin-right: 0.5rem;
+  position: relative;
+}
+
+.word-key::after {
+  content: "·";
+  position: absolute;
+  right: -0.3rem;
+  color: #ccc;
 }
 
 .word-value {
-  color: #111827;
+  color: #333;
+}
+
+/* History Panel Styling */
+.history-panel {
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 2px solid var(--color-border);
+  text-align: left;
+}
+
+.history-title {
+  font-size: 1.2rem;
+  margin-bottom: 1.5rem;
+  color: #555;
+  text-align: center;
+  letter-spacing: 0.1em;
+  position: relative;
+}
+
+.history-title::after {
+  content: "";
+  display: block;
+  width: 40px;
+  height: 2px;
+  background-color: var(--color-accent);
+  margin: 0.5rem auto 0;
+}
+
+.history-content {
+  /* Removed fixed height and overflow to let content expand naturally */
+}
+
+.history-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.history-item {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.history-item:last-child {
+  border-bottom: none;
+}
+
+.history-entry {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 1.2rem 1rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-family: inherit;
+  border-radius: 4px;
+}
+
+.history-entry:hover {
+  background-color: #f9f9f9;
+  transform: translateX(4px);
+}
+
+.history-entry-top {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  width: 100%;
+}
+
+.history-entry-id {
+  font-weight: 700;
+  color: #555;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.history-entry-grade {
+  color: var(--color-primary);
+  font-weight: 700;
+  border: 1px solid var(--color-primary);
+  padding: 0 0.4rem;
+  font-size: 0.9rem;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.history-entry-time {
+  margin-left: auto;
+  font-size: 0.8rem;
+  color: #999;
+  font-feature-settings: "tnum";
+  flex-shrink: 0;
+}
+
+.history-entry-content {
+  color: #444;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  font-family: "Noto Serif SC", serif;
+  /* Remove line clamp to show full text */
+  white-space: normal;
+  word-break: break-all;
+}
+
+.history-empty {
+  text-align: center;
+  color: #999;
+  padding: 2rem;
+  font-style: italic;
 }
 
 @media (max-width: 600px) {
   .app-shell {
-    padding: 1.75rem 1.25rem 1.5rem;
+    padding: 2rem 1rem;
+    border: none;
+    box-shadow: none;
   }
 
-  .fortune-body {
+  .fortune-card {
+    padding: 1.5rem 1rem;
+  }
+
+  .fortune-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .fortune-images {
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .fortune-image img {
+    width: 100px;
+  }
+
+  .fortune-poem-list {
+    font-size: 1.3rem;
+  }
+
+  .words-list {
     grid-template-columns: 1fr;
   }
 }
