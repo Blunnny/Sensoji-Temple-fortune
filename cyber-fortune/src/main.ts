@@ -16,9 +16,7 @@ function renderFortune(container: HTMLElement, omikuji: Omikuji): void {
     .map((line) => `<li>${line}</li>`)
     .join("");
 
-  const translationLines = omikuji.translation
-    .map((line) => `<li>${line}</li>`)
-    .join("");
+  const translationLines = `<li>${omikuji.translation}</li>`;
 
   const frontUrl = resolveImage(omikuji.front);
   const backUrl = resolveImage(omikuji.back);

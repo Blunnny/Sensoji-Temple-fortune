@@ -10,8 +10,9 @@ export interface Omikuji {
   id: number;
   grade: string;
   original: OmikujiOriginal;
-  translation: string[];
+  translation: string;
   words: OmikujiWords;
+  meaning: string;
 }
 
 export const omikujiList: Omikuji[] = omikujiData as unknown as Omikuji[];
