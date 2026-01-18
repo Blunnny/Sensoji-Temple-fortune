@@ -1,6 +1,9 @@
 import "./style.css";
 import { drawRandomOmikuji, omikujiList, type Omikuji } from "./contents";
 
+declare const Hands: any;
+declare const Camera: any;
+
 const app = document.querySelector<HTMLDivElement>("#app");
 
 const HISTORY_STORAGE_KEY = "cyber-fortune-history";
@@ -12,6 +15,20 @@ type HistoryItem = {
 };
 
 function resolveImage(path: string): string {
+  if (!path) {
+    return "";
+  }
+
+  // Treat paths starting with "./picture_front" or "./picture_back" as public assets
+  if (path.startsWith("./picture_front/")) {
+    return `/picture_front/${path.substring("./picture_front/".length)}`;
+  }
+
+  if (path.startsWith("./picture_back/")) {
+    return `/picture_back/${path.substring("./picture_back/".length)}`;
+  }
+
+  // Fallback to bundled asset resolution
   try {
     return new URL(path, import.meta.url).href;
   } catch {
@@ -271,6 +288,230 @@ function renderHistory(
 let currentMethod: "touch" | "gesture" | null = null;
 let history = loadHistory();
 
+let gestureCamera: any | null = null;
+let gestureVideo: HTMLVideoElement | null = null;
+let lastGestureTime = 0;
+let lastRefreshTime = 0;
+
+function stopGestureCamera(): void {
+  if (gestureCamera && typeof gestureCamera.stop === "function") {
+    gestureCamera.stop();
+  }
+
+  gestureCamera = null;
+
+  if (gestureVideo) {
+    gestureVideo.pause();
+    gestureVideo.srcObject = null;
+    gestureVideo.remove();
+    gestureVideo = null;
+  }
+}
+
+async function startGestureOnDrawerPage(): Promise<void> {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  if (typeof Hands === "undefined" || typeof Camera === "undefined") {
+    return;
+  }
+
+  const preview = app?.querySelector<HTMLElement>("#camera-preview");
+
+  if (!preview) {
+    return;
+  }
+
+  stopGestureCamera();
+
+  const video = document.createElement("video");
+  video.autoplay = true;
+  video.playsInline = true;
+  video.muted = true;
+  video.className = "camera-video";
+
+  gestureVideo = video;
+
+  preview.innerHTML = "";
+  preview.appendChild(video);
+
+  const drawerButtons = Array.from(
+    app?.querySelectorAll<HTMLButtonElement>(".drawer-box") ?? [],
+  );
+
+  if (drawerButtons.length === 0) {
+    return;
+  }
+
+  const drawerCount = drawerButtons.length;
+  let isRefreshing = false;
+  let hoverIndex = -1;
+  let selectedIndex: number | null = null;
+  let wasPinching = false;
+  let pinchStartTime = 0;
+  let wasMiddlePinching = false;
+
+  // Smooth coordinates for gesture stability
+  let smoothX = 0;
+  let smoothY = 0;
+  const smoothingFactor = 0.2; // Lower = smoother but more lag
+
+  const hands = new Hands({
+    locateFile: (file: string) =>
+      `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
+  });
+
+  hands.setOptions({
+    maxNumHands: 1,
+    modelComplexity: 1,
+    minDetectionConfidence: 0.6,
+    minTrackingConfidence: 0.6,
+  });
+
+  hands.onResults((results: any) => {
+    if (isRefreshing) {
+      return;
+    }
+
+    const multi =
+      results && Array.isArray(results.multiHandLandmarks)
+        ? results.multiHandLandmarks
+        : [];
+
+    if (!multi.length) {
+      hoverIndex = -1;
+      drawerButtons.forEach((btn) => {
+        btn.classList.remove("drawer-box-hover", "drawer-box-selected");
+      });
+      wasPinching = false;
+      return;
+    }
+
+    const landmarks = multi[0];
+
+    const wrist = landmarks[0];
+    const indexTip = landmarks[8];
+    const thumbTip = landmarks[4];
+    const middleTip = landmarks[12];
+    const middleMcp = landmarks[9];
+
+    const palmSize =
+      Math.hypot(middleMcp.x - wrist.x, middleMcp.y - wrist.y) || 0.0001;
+
+    // Smoothing logic
+    const xNormRaw = Math.min(0.999, Math.max(0, indexTip.x));
+    const xNormTarget = 1 - xNormRaw; // Mirror
+    const yNormTarget = Math.min(0.999, Math.max(0, indexTip.y));
+
+    // Initialize smoothing on first detection or if jump is too large
+    if (smoothX === 0 && smoothY === 0) {
+      smoothX = xNormTarget;
+      smoothY = yNormTarget;
+    } else {
+      smoothX = smoothX * (1 - smoothingFactor) + xNormTarget * smoothingFactor;
+      smoothY = smoothY * (1 - smoothingFactor) + yNormTarget * smoothingFactor;
+    }
+
+    const cols = 3;
+    const rows = Math.max(1, Math.ceil(drawerCount / cols));
+
+    const col = Math.min(cols - 1, Math.floor(smoothX * cols));
+    const row = Math.min(rows - 1, Math.floor(smoothY * rows));
+    const nextHoverIndex = Math.min(drawerCount - 1, row * cols + col);
+
+    if (nextHoverIndex !== hoverIndex) {
+      hoverIndex = nextHoverIndex;
+      drawerButtons.forEach((btn, index) => {
+        btn.classList.toggle("drawer-box-hover", index === hoverIndex);
+      });
+    }
+
+    const pinchDist = Math.hypot(
+      thumbTip.x - indexTip.x,
+      thumbTip.y - indexTip.y,
+    );
+    const pinchRatio = pinchDist / palmSize;
+    const isPinching = pinchRatio < 0.4;
+
+    const middlePinchDist = Math.hypot(
+      thumbTip.x - middleTip.x,
+      thumbTip.y - middleTip.y,
+    );
+    const middlePinchRatio = middlePinchDist / palmSize;
+    const isMiddlePinching = middlePinchRatio < 0.4;
+
+    if (isPinching && !wasPinching) {
+      if (hoverIndex >= 0) {
+        selectedIndex = hoverIndex;
+        pinchStartTime = Date.now();
+        drawerButtons.forEach((btn, index) => {
+          btn.classList.toggle("drawer-box-selected", index === selectedIndex);
+        });
+      }
+    } else if (!isPinching && wasPinching) {
+      selectedIndex = null;
+      pinchStartTime = 0;
+      drawerButtons.forEach((btn) => {
+        btn.classList.remove("drawer-box-selected");
+      });
+    }
+
+    if (isMiddlePinching && !wasMiddlePinching) {
+      const now = Date.now();
+      if (now - lastRefreshTime > 1000) {
+        lastRefreshTime = now;
+        isRefreshing = true;
+        hoverIndex = -1;
+        selectedIndex = null;
+        drawerButtons.forEach((btn) => {
+          btn.classList.remove("drawer-box-hover", "drawer-box-selected");
+        });
+        const drawerContainer =
+          app?.querySelector<HTMLElement>(".drawer-container");
+        if (drawerContainer) {
+          drawerContainer.classList.add("refreshing");
+        }
+        window.setTimeout(() => {
+          const container =
+            app?.querySelector<HTMLElement>(".drawer-container");
+          if (container) {
+            container.classList.remove("refreshing");
+          }
+          isRefreshing = false;
+        }, 1500);
+      }
+    }
+
+    wasPinching = isPinching;
+    wasMiddlePinching = isMiddlePinching;
+
+    if (isPinching && selectedIndex !== null && pinchStartTime > 0) {
+      const now = Date.now();
+
+      if (now - pinchStartTime > 2000 && now - lastGestureTime > 1500) {
+        lastGestureTime = now;
+        stopGestureCamera();
+        handleDrawerSelect();
+      }
+    }
+  });
+
+  gestureCamera = new Camera(video, {
+    onFrame: async () => {
+      await hands.send({ image: video });
+    },
+    width: 640,
+    height: 480,
+  });
+
+  try {
+    gestureCamera.start();
+  } catch {
+    stopGestureCamera();
+  }
+}
+
 function renderHome(): void {
   if (!app) {
     return;
@@ -334,8 +575,26 @@ function renderDrawerPage(): void {
     return;
   }
 
-  const drawersHtml = Array.from({ length: 9 }, (_, index) => {
+  stopGestureCamera();
+
+  const isGestureMode = currentMethod === "gesture";
+  const drawerCount = 9;
+
+  const drawersHtml = Array.from({ length: drawerCount }, (_, index) => {
     const number = index + 1;
+    // Elegant Traditional Chinese Numerals (Large capitalization for formal/ritual feel)
+    const elegantNumerals = [
+      "壱",
+      "弐",
+      "参",
+      "肆",
+      "伍",
+      "陆",
+      "柒",
+      "捌",
+      "玖",
+    ];
+    const label = elegantNumerals[index] || number.toString();
 
     return `
       <button
@@ -343,15 +602,14 @@ function renderDrawerPage(): void {
         class="drawer-box"
         data-index="${number}"
       >
-        <span class="drawer-label">抽屉${number}</span>
+        <span class="drawer-label">${label}</span>
       </button>
     `;
   }).join("");
 
-  const methodHint =
-    currentMethod === "gesture"
-      ? "后续将通过摄像头捕捉手势来选择抽屉，当前可先点击体验流程。"
-      : "请通过点击或触摸选择一个抽屉。";
+  const methodHint = isGestureMode
+    ? "可以通过摄像头手势或点击抽屉来进行抽签。"
+    : "请通过点击或触摸选择一个抽屉。";
 
   app.innerHTML = `
     <main class="app-shell">
@@ -362,9 +620,29 @@ function renderDrawerPage(): void {
         <p class="subtitle-jp">${methodHint}</p>
       </header>
       <section class="drawer-page">
-        <div class="drawer-grid">
-          ${drawersHtml}
+        <div class="drawer-container">
+          <div class="drawer-grid">
+            ${drawersHtml}
+          </div>
+          ${
+            isGestureMode
+              ? `
+          <div id="drawer-overlay" class="drawer-overlay">正在切换中…</div>
+          `
+              : ""
+          }
         </div>
+        ${
+          isGestureMode
+            ? `
+        <section class="camera-section">
+          <h3 class="camera-title">手势抽签</h3>
+          <p class="camera-description">将手掌在画面中移动以选择任意一个抽屉，拇指与食指捏合并保持片刻以确认抽签，拇指与中指轻捏一下可“换一批”抽屉。</p>
+          <div id="camera-preview" class="camera-preview"></div>
+        </section>
+        `
+            : ""
+        }
         <div class="drawer-actions">
           <button id="back-to-home" class="link-button" type="button">返回抽签方式选择</button>
         </div>
@@ -384,8 +662,13 @@ function renderDrawerPage(): void {
 
   if (backButton) {
     backButton.addEventListener("click", () => {
+      stopGestureCamera();
       renderHome();
     });
+  }
+
+  if (currentMethod === "gesture") {
+    startGestureOnDrawerPage();
   }
 }
 
