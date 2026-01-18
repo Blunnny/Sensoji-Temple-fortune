@@ -525,15 +525,24 @@ function renderHome(): void {
         <p class="subtitle">签示因缘，行由心定。</p>
         <p class="subtitle-jp">おみくじは縁を示す、結びはあなたが結ぶ。</p>
       </header>
+      <section class="omikuji-intro">
+        <h2 class="omikuji-intro-title">浅草寺观音灵签</h2>
+        <p class="omikuji-intro-text">
+          抽签习俗自古由中国传入，在比叡山演变为具有日本特色的百签占卜吉凶之法。起初流行于关西地区，江户时代传播至关东，经改良后成为面向大众的「浅草寺观音灵签」。
+        </p>
+        <p class="omikuji-intro-text">
+          观音灵签共有一百签，其吉凶判定分为凶、吉、未吉、半吉、小吉、末吉、大吉七种。即使抽到大吉，若因此疏忽大意或态度傲慢，也可能转为凶运。请以谦虚柔和之心待人接物。若抽到凶签亦无需畏惧，只要持之以恒、诚实地生活，便能转危为安。
+        </p>
+      </section>
       <section class="mode-section">
         <div class="mode-card">
-          <h2 class="mode-title">触摸抽签</h2>
-          <p class="mode-description">通过鼠标或触屏选择抽屉，体验传统抽签仪式。</p>
-          <button id="mode-touch" class="primary-button" type="button">使用触摸抽签</button>
+          <h2 class="mode-title">点击抽签</h2>
+          <p class="mode-description">通过鼠标或触屏点击抽屉，体验传统抽签仪式。</p>
+          <button id="mode-touch" class="primary-button" type="button">使用点击抽签</button>
         </div>
         <div class="mode-card">
           <h2 class="mode-title">手势抽签</h2>
-          <p class="mode-description">通过摄像头捕捉手势进行抽签，将在后续接入。</p>
+          <p class="mode-description">通过摄像头捕捉手势，在空中移动、捏合即可完成抽签。</p>
           <button id="mode-gesture" class="primary-button" type="button">使用手势抽签</button>
         </div>
       </section>

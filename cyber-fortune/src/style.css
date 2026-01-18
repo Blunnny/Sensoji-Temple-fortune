@@ -114,6 +114,34 @@ body {
   letter-spacing: 0.05em;
 }
 
+.omikuji-intro {
+  margin-top: 2rem;
+  padding: 1.5rem 1.25rem;
+  border-radius: 8px;
+  border: 1px solid rgba(229, 224, 216, 0.9);
+  background: linear-gradient(
+    135deg,
+    rgba(253, 251, 247, 0.96),
+    rgba(250, 245, 236, 0.96)
+  );
+  text-align: left;
+}
+
+.omikuji-intro-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.1rem;
+  letter-spacing: 0.18em;
+  color: #555;
+}
+
+.omikuji-intro-text {
+  margin: 0.4rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.8;
+  color: #555;
+  text-indent: 2em;
+}
+
 .app-actions {
   margin-top: 2.5rem;
 }
