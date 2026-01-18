@@ -268,7 +268,14 @@ function renderHistory(
   });
 }
 
-if (app) {
+let currentMethod: "touch" | "gesture" | null = null;
+let history = loadHistory();
+
+function renderHome(): void {
+  if (!app) {
+    return;
+  }
+
   app.innerHTML = `
     <main class="app-shell">
       <header class="app-header">
@@ -277,55 +284,164 @@ if (app) {
         <p class="subtitle">签示因缘，行由心定。</p>
         <p class="subtitle-jp">おみくじは縁を示す、結びはあなたが結ぶ。</p>
       </header>
-      <section class="app-actions">
-        <button id="draw-button" class="primary-button" type="button">抽一签</button>
-      </section>
-      <section id="fortune-card" class="fortune-card">
-        <p class="placeholder">尚未抽签，将初始展示第一支测试签。</p>
-      </section>
-      <section id="history-panel" class="history-panel">
-        <h2 class="history-title">最近抽到的签</h2>
-        <div id="history-content" class="history-content">
-          <p class="history-empty">尚无历史记录，抽几签试试。</p>
+      <section class="mode-section">
+        <div class="mode-card">
+          <h2 class="mode-title">触摸抽签</h2>
+          <p class="mode-description">通过鼠标或触屏选择抽屉，体验传统抽签仪式。</p>
+          <button id="mode-touch" class="primary-button" type="button">使用触摸抽签</button>
+        </div>
+        <div class="mode-card">
+          <h2 class="mode-title">手势抽签</h2>
+          <p class="mode-description">通过摄像头捕捉手势进行抽签，将在后续接入。</p>
+          <button id="mode-gesture" class="primary-button" type="button">使用手势抽签</button>
         </div>
       </section>
     </main>
   `;
 
+  const touchButton = app.querySelector<HTMLButtonElement>("#mode-touch");
+  const gestureButton = app.querySelector<HTMLButtonElement>("#mode-gesture");
+
+  if (touchButton) {
+    touchButton.addEventListener("click", () => {
+      currentMethod = "touch";
+      renderDrawerPage();
+    });
+  }
+
+  if (gestureButton) {
+    gestureButton.addEventListener("click", () => {
+      currentMethod = "gesture";
+      renderDrawerPage();
+    });
+  }
+}
+
+function handleDrawerSelect(): void {
+  const result = drawRandomOmikuji();
+
+  if (!result) {
+    return;
+  }
+
+  history = appendToHistory(history, result);
+  saveHistory(history);
+  renderResultPage(result);
+}
+
+function renderDrawerPage(): void {
+  if (!app) {
+    return;
+  }
+
+  const drawersHtml = Array.from({ length: 9 }, (_, index) => {
+    const number = index + 1;
+
+    return `
+      <button
+        type="button"
+        class="drawer-box"
+        data-index="${number}"
+      >
+        <span class="drawer-label">抽屉${number}</span>
+      </button>
+    `;
+  }).join("");
+
+  const methodHint =
+    currentMethod === "gesture"
+      ? "后续将通过摄像头捕捉手势来选择抽屉，当前可先点击体验流程。"
+      : "请通过点击或触摸选择一个抽屉。";
+
+  app.innerHTML = `
+    <main class="app-shell">
+      <header class="app-header">
+        <h1>浅草缘签</h1>
+        <div class="header-jp">浅草縁みくじ</div>
+        <p class="subtitle">请选择一个抽屉。</p>
+        <p class="subtitle-jp">${methodHint}</p>
+      </header>
+      <section class="drawer-page">
+        <div class="drawer-grid">
+          ${drawersHtml}
+        </div>
+        <div class="drawer-actions">
+          <button id="back-to-home" class="link-button" type="button">返回抽签方式选择</button>
+        </div>
+      </section>
+    </main>
+  `;
+
+  const boxes = app.querySelectorAll<HTMLButtonElement>(".drawer-box");
+
+  boxes.forEach((box) => {
+    box.addEventListener("click", () => {
+      handleDrawerSelect();
+    });
+  });
+
+  const backButton = app.querySelector<HTMLButtonElement>("#back-to-home");
+
+  if (backButton) {
+    backButton.addEventListener("click", () => {
+      renderHome();
+    });
+  }
+}
+
+function renderResultPage(omikuji: Omikuji): void {
+  if (!app) {
+    return;
+  }
+
+  app.innerHTML = `
+    <main class="app-shell">
+      <header class="app-header">
+        <h1>浅草缘签</h1>
+        <div class="header-jp">浅草縁みくじ</div>
+        <p class="subtitle">抽签结果已就绪。</p>
+        <p class="subtitle-jp">おみくじの結果が出ました。</p>
+      </header>
+      <section id="fortune-card" class="fortune-card"></section>
+      <section id="history-panel" class="history-panel">
+        <h2 class="history-title">最近抽到的签</h2>
+        <div id="history-content" class="history-content"></div>
+      </section>
+      <section class="result-actions">
+        <button id="draw-again" class="primary-button" type="button">再抽一签</button>
+        <button id="back-to-home" class="link-button" type="button">返回抽签方式选择</button>
+      </section>
+    </main>
+  `;
+
   const card = app.querySelector<HTMLElement>("#fortune-card");
-  const button = app.querySelector<HTMLButtonElement>("#draw-button");
   const historyContainer = app.querySelector<HTMLElement>("#history-content");
 
-  const initial = omikujiList[0];
-  let history = loadHistory();
-
-  if (card && initial) {
-    renderFortune(card, initial);
+  if (card) {
+    renderFortune(card, omikuji);
   }
 
   if (historyContainer) {
     renderHistory(historyContainer, history, card ?? null);
   }
 
-  if (button && card) {
-    button.addEventListener("click", () => {
-      const result = drawRandomOmikuji();
+  const drawAgainButton = app.querySelector<HTMLButtonElement>("#draw-again");
 
-      console.log("抽到的签：", result);
-
-      if (!result) {
-        return;
-      }
-
-      renderFortune(card, result);
-
-      history = appendToHistory(history, result);
-
-      if (historyContainer) {
-        renderHistory(historyContainer, history, card);
-      }
-
-      saveHistory(history);
+  if (drawAgainButton) {
+    drawAgainButton.addEventListener("click", () => {
+      renderDrawerPage();
     });
   }
+
+  const backButton = app.querySelector<HTMLButtonElement>("#back-to-home");
+
+  if (backButton) {
+    backButton.addEventListener("click", () => {
+      renderHome();
+    });
+  }
+}
+
+if (app) {
+  renderHome();
 }

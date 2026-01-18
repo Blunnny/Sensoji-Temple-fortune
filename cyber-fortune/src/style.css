@@ -118,6 +118,38 @@ body {
   margin-top: 2.5rem;
 }
 
+.mode-section {
+  margin-top: 2.5rem;
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.mode-card {
+  flex: 1 1 260px;
+  padding: 1.5rem 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background-color: #fdfbf7;
+  box-shadow: var(--shadow-soft);
+  text-align: left;
+}
+
+.mode-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.2rem;
+  letter-spacing: 0.12em;
+}
+
+.mode-description {
+  margin: 0 0 1.5rem;
+  font-size: 0.95rem;
+  color: #666;
+  line-height: 1.7;
+}
+
 .primary-button {
   padding: 0.8rem 3rem;
   border: 1px solid var(--color-primary);
@@ -132,6 +164,18 @@ body {
   overflow: hidden;
 }
 
+.secondary-button {
+  padding: 0.8rem 3rem;
+  border: 1px solid var(--color-primary);
+  background-color: #fff;
+  color: var(--color-primary);
+  font-family: inherit;
+  font-size: 1.1rem;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
 .primary-button:hover {
   background-color: white;
   color: var(--color-primary);
@@ -139,6 +183,118 @@ body {
 
 .primary-button:active {
   transform: translateY(1px);
+}
+
+.secondary-button:hover {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.drawer-page {
+  margin-top: 2.5rem;
+}
+
+.drawer-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.2rem;
+  margin-top: 1.5rem;
+}
+
+.drawer-box {
+  border: 1px solid var(--color-border);
+  background: linear-gradient(135deg, #f5e7d3, #f0d9b5);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  padding: 1.8rem 0.5rem;
+  cursor: pointer;
+  position: relative;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.drawer-box::before {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 12px;
+  bottom: 12px;
+  border: 1px solid rgba(120, 80, 40, 0.35);
+}
+
+.drawer-box::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 22px;
+  height: 22px;
+  margin-left: -11px;
+  margin-top: -11px;
+  border-radius: 50%;
+  border: 2px solid rgba(120, 80, 40, 0.6);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.6);
+}
+
+.drawer-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+
+.drawer-label {
+  position: relative;
+  z-index: 1;
+  font-size: 1.1rem;
+  letter-spacing: 0.25em;
+  color: #5c3b2a;
+}
+
+.drawer-actions {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.link-button {
+  padding: 0.5rem 1.4rem;
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+  background: rgba(253, 251, 247, 0.9);
+  color: var(--color-primary);
+  font-size: 0.9rem;
+  letter-spacing: 0.2em;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.1s ease;
+}
+
+.link-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 6px;
+  background: linear-gradient(180deg, var(--color-primary), #e38b8b);
+}
+
+.link-button:hover {
+  background: #fff;
+  border-color: var(--color-primary);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.result-actions {
+  margin-top: 2.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
 }
 
 .fortune-card {
