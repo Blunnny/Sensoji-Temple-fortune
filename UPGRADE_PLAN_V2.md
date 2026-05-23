@@ -314,43 +314,43 @@ cyber-fortune/src/
 ### Milestone 0 — 地基（1–2 天）✅ 部分完成
 
 - [x] 100 签数据、双模式、基础 UI  
-- [ ] 0-1 拆分 `main.ts` → `services/fortune.ts` + `pages/*`  
-- [ ] 0-2 统一 `DrawRecord` 类型，localStorage 先扩到 20 条兼容迁移  
-- [ ] 0-3 为 `contents.json` 生成 `meta.json`（tags / tone / shortLine）  
+- [x] 0-1 拆分 `main.ts` → `services/` + `pages/` + `components/` + `app/`  
+- [x] 0-2 统一 `DrawRecord` 类型，localStorage 扩到 20 条 + 旧数据迁移  
+- [x] 0-3 运行时 `meta.ts` 推导 tags / tone / shortLine（无需单独 meta.json）  
 
 ### Milestone 1 — 仪式与视觉冲击（3–4 天）⭐ 最先做
 
-- [ ] 1-1 参拜状态机 + 进度条（可先实现 净手→抽签→揭签 三步 MVP）  
-- [ ] 1-2 樱花粒子 + 季节 CSS 变量  
-- [ ] 1-3 揭签卷轴 + 竖排渐显 + 吉凶大字  
-- [ ] 1-4 音效：环境 BGM + 揭签/点击 3 个关键音  
-- [ ] 1-5 凶签系签树解厄流程  
+- [x] 1-1 参拜状态机 + 进度条（山门→净手→祈愿→抽签→揭签→解厄→离寺）  
+- [x] 1-2 樱花粒子 + 季节 CSS 变量 + 昼夜主题  
+- [x] 1-3 揭签卷轴 + 竖排渐显 + 吉凶大字 + 签图翻转  
+- [x] 1-4 音效框架（Web Audio 程序化音）+ 净手/抽签/揭签/系签  
+- [x] 1-5 凶签系签树解厄流程  
 
 ### Milestone 2 — 摇签筒与手势 2.0（3–4 天）
 
-- [ ] 2-1 Canvas 摇签筒 + 手机 shake API  
-- [ ] 2-2 九宫格 stagger + 拉开动画  
-- [ ] 2-3 手势：合十、摇筒、骨架引导层  
-- [ ] 2-4 签种选择（综合/爱情/事业/今日一言/指定数字）  
+- [x] 2-1 Canvas 摇签筒 + 手机 shake API  
+- [x] 2-2 九宫格 stagger + 缘字高亮屉 + 拉开动画  
+- [x] 2-3 手势：合十、摇筒、骨架引导层  
+- [x] 2-4 签种选择（综合/爱情/事业/今日一言/指定数字）  
 
 ### Milestone 3 — 数据留存（2–3 天）
 
-- [ ] 3-1 IndexedDB 迁移 + 历史 50 条分页  
-- [ ] 3-2 统计看板 + 吉凶日历  
-- [ ] 3-3 收藏 + 图鉴 + 成就  
-- [ ] 3-4 每日一签  
+- [x] 3-1 IndexedDB 迁移 + 历史 50 条  
+- [x] 3-2 统计看板 + 吉凶日历  
+- [x] 3-3 收藏 + 图鉴 + 成就  
+- [x] 3-4 每日一签  
 
 ### Milestone 4 — 传播（2 天）
 
-- [ ] 4-1 Canvas 分享卡三模板  
-- [ ] 4-2 URL permalink + 复制文案  
-- [ ] 4-3 双人合盘（本地双人输入）  
+- [x] 4-1 Canvas 分享卡三模板  
+- [x] 4-2 URL permalink + 复制文案  
+- [x] 4-3 双人合盘（本地双人输入）  
 
 ### Milestone 5 — 打磨（穿插）
 
-- [ ] 5-1 PWA 离线  
-- [ ] 5-2 深夜神社主题  
-- [ ] 5-3 性能与无障碍（`prefers-reduced-motion` 关闭粒子）  
+- [x] 5-1 PWA 离线（vite-plugin-pwa）  
+- [x] 5-2 深夜神社主题（手动 🌙 切换 + 自动昼夜）  
+- [x] 5-3 性能与无障碍（`prefers-reduced-motion` 关闭粒子）  
 
 ### Milestone 6 — 可选后端
 
